@@ -23,6 +23,20 @@ app.get('/api/users/',(req,res)=>{
     return res.send(users);
 });
 
+//get user by id
+
+app.get('/api/users/:id',(req,res)=>{
+    const usr = users.find((u)=>{
+        return u.id === parseInt(req.params.id);
+    });
+    if(usr===undefined) return res.status(404).send(`No user found with id ${req.params.id}`);
+
+    return res.send(usr);
+});
+
+
+//get user by name
+
 
 //listen at port
 const port = process.env.PORT || 3000;
