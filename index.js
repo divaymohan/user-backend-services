@@ -16,7 +16,18 @@ const users = [
     {id:9,fisrtName:"aman",lastName:"chaudhary",age: 26,userName:"aman",password:"divmoh1305"},
     {id:10,fisrtName:"aniket",lastName:"chaudhary",age: 20,userName:"aniket",password:"divmoh1305"}
 ]
-
+//
+function validate(user){
+    const schema = {
+        fisrtName: Joi.string().min(3).max(15).required(),
+        lastName: Joi.string().min(3).max(15).required(),
+        age: Joi.number().integer().min(15).max(100).required(),
+        userName: Joi.string().alphanum().min(3).max(15).required(),
+        password: Joi.string().alphanum().min(3).max(20).required()
+    };
+    const result = Joi.validate(user,schema);
+    return result;
+}
 
 //get all the users
 app.get('/api/users/',(req,res)=>{
@@ -50,8 +61,32 @@ app.get('/api/users/name/:username/',(req,res)=>{
     return res.send(usr);
  });
 
+ //add a user
+ app.post('/api/users/',(req,res)=>{
+    //validate the data
+    const {error,value} = validate(req.body);
+    //if not valid through a error
+    if(error) return res.send(error.details[0].message);
+    //if valid add user and return new added user
+    //create new user
+    const newuser = {
+        id: users.length + 1,
+        fisrtName: req.body.fisrtName,
+        lastName: req.body.lastName,
+        age: parseInt(req.body.age),
+        userName: req.body.userName,
+        password: req.body.password
+    };
+    //push new user into databse
+    users.push(newuser);
+    //return response
+    return res.send(newuser);
+ });
 
-//listen at port
+
+
+
+ //listen at port
 const port = process.env.PORT || 3000;
 app.listen(port,()=>{
     console.log(`listening at port ${port}`);
