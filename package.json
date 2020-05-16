@@ -1,0 +1,26 @@
+{
+  "name": "user-backend-service",
+  "version": "1.0.0",
+  "description": "ability to create,update,delete and get",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/divaymohan/user-backend-services.git"
+  },
+  "keywords": [
+    "user-profile"
+  ],
+  "author": "divay mohan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/divaymohan/user-backend-services/issues"
+  },
+  "homepage": "https://github.com/divaymohan/user-backend-services#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "joi": "^14.3.1"
+  }
+}
