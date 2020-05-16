@@ -51,7 +51,7 @@ app.get('/api/users/id/:id/',(req,res)=>{
 //get user by name
 app.get('/api/users/name/:username/',(req,res)=>{
     //check if user is available
-    console.log(req.params.username);
+    
     const usr = users.find((u)=>{
         return u.userName == req.params.username;
     });
@@ -81,6 +81,25 @@ app.get('/api/users/name/:username/',(req,res)=>{
     users.push(newuser);
     //return response
     return res.send(newuser);
+ });
+
+ //update a new user
+ app.put('/api/users/:id',(req,res)=>{
+    //get user by id
+    const usr = users.find((u)=>{
+        return u.id === parseInt(req.params.id);
+    });
+    //if not user send error
+    if(usr === undefined) return res.status(404).send(`User not found with id ${req.body.id}`);
+    //else update user
+    usr.fisrtName = req.body.fisrtName;
+    usr.lastName = req.body.lastName;
+    usr.age = parseInt(req.body.age);
+    usr.password = req.body.password;
+    usr.userName = req.body.userName;
+    //send the updated user
+    return res.send(usr);
+
  });
 
 
