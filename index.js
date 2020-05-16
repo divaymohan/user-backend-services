@@ -91,6 +91,9 @@ app.get('/api/users/name/:username/',(req,res)=>{
     });
     //if not user send error
     if(usr === undefined) return res.status(404).send(`User not found with id ${req.body.id}`);
+    //validate
+    const {error,value} = validate(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
     //else update user
     usr.fisrtName = req.body.fisrtName;
     usr.lastName = req.body.lastName;
@@ -100,6 +103,20 @@ app.get('/api/users/name/:username/',(req,res)=>{
     //send the updated user
     return res.send(usr);
 
+ });
+
+ //delete request user
+ app.delete('/api/users/:id',(req,res)=>{
+    //get user
+    const usr = users.find((u)=>{
+        return u.id === parseInt(req.params.id);
+    });
+    //if not user found through error
+    if(!usr) return res.status(404).send(`No user found with id: ${req.params.id}`);
+    //else delete user
+    const index = users.indexOf(usr);
+    users.splice(index,1);
+    return res.send(usr);
  });
 
 
