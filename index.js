@@ -25,17 +25,30 @@ app.get('/api/users/',(req,res)=>{
 
 //get user by id
 
-app.get('/api/users/:id',(req,res)=>{
+app.get('/api/users/id/:id/',(req,res)=>{
+    //check if user is available
     const usr = users.find((u)=>{
         return u.id === parseInt(req.params.id);
     });
+    //return error message if not found
     if(usr===undefined) return res.status(404).send(`No user found with id ${req.params.id}`);
-
+     //return usr if found
     return res.send(usr);
 });
 
 
 //get user by name
+app.get('/api/users/name/:username/',(req,res)=>{
+    //check if user is available
+    console.log(req.params.username);
+    const usr = users.find((u)=>{
+        return u.userName == req.params.username;
+    });
+    //return error message if not found
+    if(usr === undefined) return res.status(404).send(`No user found with name ${req.params.username}`);
+    //return usr if found
+    return res.send(usr);
+ });
 
 
 //listen at port
