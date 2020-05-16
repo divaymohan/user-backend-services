@@ -19,7 +19,9 @@ const users = [
 
 
 //get all the users
-
+app.get('/api/users/',(req,res)=>{
+    return res.send(users);
+});
 
 
 //listen at port
