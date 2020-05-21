@@ -1,6 +1,51 @@
+//api request tools
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
+
+//Database tools
+const mongoose = require('mongoose');
+
+//debugger tools import
+const debugConnection = require('debug')('api:DBconnection');
+const debugGet = require('debug')('api:Get');
+const debugValidate = require('debug')('api:validate');
+const debugPost = require('debug')('api:post');
+const debugUpdate = require('debug')('api:put');
+const debugDelete = require('debug')('api:delete');
+
+//database connection
+mongoose.connect('mongodb://localhost/user-app-database')
+        .then(()=>debugConnection("Database Connected."))
+        .catch(err=> debugConnection(`Error in Connecting: ${err.message}`));
+
+//schema
+const schema = new mongoose.Schema({
+    fisrtName: String,
+    lastName: String,
+    age: Number,
+    userName: String,
+    password: String
+});        
+
+// model
+const User = mongoose.model('User',schema);
+//methods to get data from database  
+async function getUsers(){
+    debugGet('Getting Data From Users...!!');
+    return await User.find();
+}
+
+async function getUserByid(id){
+    debugGet('Getting user by id..!!');
+    return await User.findById(id);
+}
+
+async function saveUser(newuser){
+       debugPost('Saving data into database....!!!');
+       return await newuser.save(); 
+}
+
 
 const users = [
     {id:1,fisrtName:"divay",lastName:"mohan",age: 24,userName:"dm.fire",password:"divmoh1305"},
@@ -28,8 +73,15 @@ function validate(user){
 }
 
 //get all the users
-router.get('/',(req,res)=>{
-    return res.send(users);
+router.get('/',async (req,res)=>{
+    try{
+        const users = await getUsers();
+        return res.send(users)
+
+    }catch(err){
+        return res.send(err.message);
+    }
+    
 });
 
 //get user by id
@@ -60,25 +112,31 @@ router.get('/name/:username/',(req,res)=>{
  });
 
  //add a user
- router.post('/',(req,res)=>{
+ router.post('/',async (req,res)=>{
     //validate the data
     const {error,value} = validate(req.body);
     //if not valid through a error
     if(error) return res.send(error.details[0].message);
     //if valid add user and return new added user
     //create new user
-    const newuser = {
-        id: users.length + 1,
+    const  newuser = new User({
         fisrtName: req.body.fisrtName,
         lastName: req.body.lastName,
         age: parseInt(req.body.age),
         userName: req.body.userName,
         password: req.body.password
-    };
+    });
     //push new user into databse
-    users.push(newuser);
+    try{
+        const result = await saveUser(newuser);
+        return res.send(result);
+    }
+    catch(err){
+        return res.send(err.message);
+    }
+  
     //return response
-    return res.send(newuser);
+    
  });
 
  //update a new user
