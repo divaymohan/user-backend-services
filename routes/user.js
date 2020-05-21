@@ -21,11 +21,27 @@ mongoose.connect('mongodb://localhost/user-app-database')
 
 //schema
 const schema = new mongoose.Schema({
-    fisrtName: String,
-    lastName: String,
+    fisrtName:{
+        type: String,
+        minlength: 3,
+        maxlength: 15
+    },
+    lastName: {
+        type: String,
+        minlength: 3,
+        maxlength: 15
+    },
     age: Number,
-    userName: String,
-    password: String
+    userName: {
+        type: String,
+        minlength: 3,
+        maxlength: 15
+    },
+    password: {
+        type: String,
+        minlength: 6,
+        maxlength: 15
+    }
 });        
 
 // model
@@ -45,20 +61,24 @@ async function saveUser(newuser){
        debugPost('Saving data into database....!!!');
        return await newuser.save(); 
 }
-
-
-const users = [
-    {id:1,fisrtName:"divay",lastName:"mohan",age: 24,userName:"dm.fire",password:"divmoh1305"},
-    {id:2,fisrtName:"diksha",lastName:"rajput",age: 24,userName:"dx",password:"divmoh1305"},
-    {id:3,fisrtName:"ayush",lastName:"sinha",age: 23,userName:"ayushsinha",password:"divmoh1305"},
-    {id:4,fisrtName:"vikas",lastName:"kumar",age: 24,userName:"vikaskumar",password:"divmoh1305"},
-    {id:5,fisrtName:"prateek",lastName:"kate",age: 22,userName:"prateekkate",password:"divmoh1305"},
-    {id:6,fisrtName:"karun",lastName:"prataap",age: 21,userName:"karun",password:"divmoh1305"},
-    {id:7,fisrtName:"vijeta",lastName:"prakash",age: 23,userName:"vizz",password:"divmoh1305"},
-    {id:8,fisrtName:"akash",lastName:"kumar",age: 25,userName:"akashkumar",password:"divmoh1305"},
-    {id:9,fisrtName:"aman",lastName:"chaudhary",age: 26,userName:"aman",password:"divmoh1305"},
-    {id:10,fisrtName:"aniket",lastName:"chaudhary",age: 20,userName:"aniket",password:"divmoh1305"}
-];
+async function getUserByUserName(username){
+    debugGet('Getting user from database..!!');
+    return await User.findOne({userName: username});
+}
+async function deleteUser(id){
+    debugDelete('Deleting user from database..!!');    
+    return await User.deleteOne({_id: id});
+}
+async function updateById(id,nuname){
+    const user = await User.findById(id);
+    if(nuname.fisrtName) user.fisrtName  = nuname.fisrtName;
+    if(nuname.lastName) user.lastName = nuname.lastName;
+    if(nuname.age) user.age = nuname.age;
+    if(nuname.userName) user.userName = nuname.userName;
+    if(nuname.password) user.password = nuname.password;
+    const result = await user.save();
+    return result;
+}
 
 function validate(user){
     const schema = {
@@ -67,6 +87,17 @@ function validate(user){
         age: Joi.number().integer().min(15).max(100).required(),
         userName: Joi.string().alphanum().min(3).max(15).required(),
         password: Joi.string().alphanum().min(3).max(20).required()
+    };
+    const result = Joi.validate(user,schema);
+    return result;
+}
+function validateUpdate(user){
+    const schema = {
+        fisrtName: Joi.string().min(3).max(15),
+        lastName: Joi.string().min(3).max(15),
+        age: Joi.number().integer().min(15).max(100),
+        userName: Joi.string().alphanum().min(3).max(15),
+        password: Joi.string().alphanum().min(3).max(20)
     };
     const result = Joi.validate(user,schema);
     return result;
@@ -89,7 +120,7 @@ router.get('/',async (req,res)=>{
 router.get('/id/:id/',async (req,res)=>{
     //check if user is available
     try{
-        const usr = await User.findById(req.params.id);
+        const usr = await getUserByid(req.params.id);
         if(!usr) return res.status(404).send(`No user found with id ${req.params.id}`);
         return res.send(usr);
 
@@ -101,16 +132,18 @@ router.get('/id/:id/',async (req,res)=>{
 
 
 //get user by name
-router.get('/name/:username/',(req,res)=>{
+router.get('/name/:username/',async (req,res)=>{
     //check if user is available
+    try{
+        const usr = await getUserByUserName(req.params.username);
+        //return error message if not found
+        if(usr === undefined) return res.status(404).send(`No user found with name ${req.params.username}`);
+        //return usr if found
+        return res.send(usr);
+    }catch(err){
+        res.send(err.message);
+    }
     
-    const usr = users.find((u)=>{
-        return u.userName == req.params.username;
-    });
-    //return error message if not found
-    if(usr === undefined) return res.status(404).send(`No user found with name ${req.params.username}`);
-    //return usr if found
-    return res.send(usr);
  });
 
  //add a user
@@ -138,43 +171,41 @@ router.get('/name/:username/',(req,res)=>{
     }
   
     //return response
-    
- });
+});
 
  //update a new user
- router.put('/:id',(req,res)=>{
-    //get user by id
-    const usr = users.find((u)=>{
-        return u.id === parseInt(req.params.id);
-    });
-    //if not user send error
-    if(usr === undefined) return res.status(404).send(`User not found with id ${req.body.id}`);
-    //validate
-    const {error,value} = validate(req.body);
+ router.put('/:id',async (req,res)=>{
+    const {error,value} = validateUpdate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
+    const usr = new User({
+        fisrtName: req.body.fisrtName,
+        lastName: req.body.lastName,
+        age: parseInt(req.body.age),
+        password: req.body.password,
+        userName: req.body.userName,
+    });
     //else update user
-    usr.fisrtName = req.body.fisrtName;
-    usr.lastName = req.body.lastName;
-    usr.age = parseInt(req.body.age);
-    usr.password = req.body.password;
-    usr.userName = req.body.userName;
-    //send the updated user
-    return res.send(usr);
+    try{
+        const result = await updateById(req.params.id,usr);
+        //send the updated user
+        return res.send(result);
+    }catch(err){
+        return res.send(err.message);
+    }
+   
 
  });
 
  //delete request user
  router.delete('/:id',(req,res)=>{
     //get user
-    const usr = users.find((u)=>{
-        return u.id === parseInt(req.params.id);
-    });
-    //if not user found through error
-    if(!usr) return res.status(404).send(`No user found with id: ${req.params.id}`);
-    //else delete user
-    const index = users.indexOf(usr);
-    users.splice(index,1);
-    return res.send(usr);
+    try{
+        const result = deleteUser(req.params.id);
+        res.send(result);
+    }catch(err){
+        res.send(err.message);
+    }
+    
  });
 
 
