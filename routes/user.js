@@ -86,15 +86,17 @@ router.get('/',async (req,res)=>{
 
 //get user by id
 
-router.get('/id/:id/',(req,res)=>{
+router.get('/id/:id/',async (req,res)=>{
     //check if user is available
-    const usr = users.find((u)=>{
-        return u.id === parseInt(req.params.id);
-    });
-    //return error message if not found
-    if(usr===undefined) return res.status(404).send(`No user found with id ${req.params.id}`);
-     //return usr if found
-    return res.send(usr);
+    try{
+        const usr = await User.findById(req.params.id);
+        if(!usr) return res.status(404).send(`No user found with id ${req.params.id}`);
+        return res.send(usr);
+
+    }catch(err){
+        return res.send(err.message);
+    }
+    
 });
 
 
