@@ -1,6 +1,6 @@
 # User Back End Service
 
-## Prerequisites Used
+## Prerequisites to Use
   * Node
   * MongoDB compass to work with mongoDB
   * Postman For Testing
@@ -27,6 +27,10 @@
     * for linux users:
         
              DEGUB =* & nodemon index.js
+
+    * If above commands are not working
+
+            nodemon index.js
             
     * if it shows message like `listening at 3000` then API is ready to use you can request.
 
