@@ -66,11 +66,16 @@ async function getUserByUserName(username){
     return await User.findOne({userName: username});
 }
 async function deleteUser(id){
-    debugDelete('Deleting user from database..!!');    
+    debugDelete('Deleting user from database..!!');   
+    const usr = await User.findById(id);
+    if(!usr) return;
     return await User.deleteOne({_id: id});
 }
 async function updateById(id,nuname){
     const user = await User.findById(id);
+    if(!user){
+        return;
+    }
     if(nuname.fisrtName) user.fisrtName  = nuname.fisrtName;
     if(nuname.lastName) user.lastName = nuname.lastName;
     if(nuname.age) user.age = nuname.age;
@@ -187,6 +192,7 @@ router.get('/name/:username/',async (req,res)=>{
     //else update user
     try{
         const result = await updateById(req.params.id,usr);
+        if(!result) res.status(400).send(`User with given id is not exist.`);
         //send the updated user
         return res.send(result);
     }catch(err){
@@ -197,10 +203,11 @@ router.get('/name/:username/',async (req,res)=>{
  });
 
  //delete request user
- router.delete('/:id',(req,res)=>{
+ router.delete('/:id',async (req,res)=>{
     //get user
     try{
-        const result = deleteUser(req.params.id);
+        const result = await deleteUser(req.params.id);
+        if(!result) res.status(400).send(`user with id: ${req.params.id} is not available in Database.`);
         res.send(result);
     }catch(err){
         res.send(err.message);
