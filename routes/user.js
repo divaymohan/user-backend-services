@@ -13,12 +13,23 @@ const debugValidate = require('debug')('api:validate');
 const debugPost = require('debug')('api:post');
 const debugUpdate = require('debug')('api:put');
 const debugDelete = require('debug')('api:delete');
-
+//const uri = "mongodb+srv://dbuser:divmoh#123@cluster0.vn8hm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 //database connection
-mongoose.connect('mongodb://localhost/user-app-database')
+/*try{
+    mongoose.connect(uri)
         .then(()=>debugConnection("Database Connected."))
         .catch(err=> debugConnection(`Error in Connecting: ${err.message}`));
-
+}catch(e){
+    console.log("can not connect Error: "+e);
+}
+*/
+const user = {
+    "fisrtName": "fname",
+    "lastName": "lname",
+    "age": 24,
+    "userName": "uname.lname",
+    "password": "uname@123"
+};
 //schema
 const schema = new mongoose.Schema({
     fisrtName:{
@@ -49,7 +60,8 @@ const User = mongoose.model('User',schema);
 //methods to get data from database  
 async function getUsers(){
     debugGet('Getting Data From Users...!!');
-    return await User.find();
+    //return await User.find();
+    return user;
 }
 
 async function getUserByid(id){
@@ -59,30 +71,34 @@ async function getUserByid(id){
 
 async function saveUser(newuser){
        debugPost('Saving data into database....!!!');
-       return await newuser.save(); 
+       //return await newuser.save();
+       return newuser; 
 }
 async function getUserByUserName(username){
     debugGet('Getting user from database..!!');
-    return await User.findOne({userName: username});
+    //return await User.findOne({userName: username});
+    return user;
 }
 async function deleteUser(id){
     debugDelete('Deleting user from database..!!');   
-    const usr = await User.findById(id);
-    if(!usr) return;
-    return await User.deleteOne({_id: id});
+    //const usr = await User.findById(id);
+    //if(!usr) return;
+    //return await User.deleteOne({_id: id});
+    return user;
 }
 async function updateById(id,nuname){
-    const user = await User.findById(id);
+    //const user = await User.findById(id);
     if(!user){
         return;
     }
-    if(nuname.fisrtName) user.fisrtName  = nuname.fisrtName;
-    if(nuname.lastName) user.lastName = nuname.lastName;
-    if(nuname.age) user.age = nuname.age;
-    if(nuname.userName) user.userName = nuname.userName;
-    if(nuname.password) user.password = nuname.password;
-    const result = await user.save();
-    return result;
+
+    //if(nuname.fisrtName) user.fisrtName  = nuname.fisrtName;
+    //if(nuname.lastName) user.lastName = nuname.lastName;
+    //if(nuname.age) user.age = nuname.age;
+   // if(nuname.userName) user.userName = nuname.userName;
+    //if(nuname.password) user.password = nuname.password;
+    //const result = await user.save();
+    return nuname;
 }
 
 function validate(user){
@@ -111,8 +127,8 @@ function validateUpdate(user){
 //get all the users
 router.get('/',async (req,res)=>{
     try{
-        const users = await getUsers();
-        return res.send(users)
+        //const users = await getUsers();
+        return res.send(user)
 
     }catch(err){
         return res.send(err.message);
