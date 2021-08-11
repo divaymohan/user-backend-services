@@ -23,7 +23,7 @@ app.use(express.static('public'));
 //third party middleware
 app.use(helmet());
 //how to eneble something in developement environment
-if(app.get('env') === 'development'){
+if(app.get('env') === 'jhh'){
     console.log('welcome to development enviroment..!!');
     console.log('enebling morgan to simply print the requist..!!');
     app.use(morgan('tiny'));

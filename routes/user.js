@@ -6,13 +6,7 @@ const Joi = require('joi');
 //Database tools
 const mongoose = require('mongoose');
 
-//debugger tools import
-const debugConnection = require('debug')('api:DBconnection');
-const debugGet = require('debug')('api:Get');
-const debugValidate = require('debug')('api:validate');
-const debugPost = require('debug')('api:post');
-const debugUpdate = require('debug')('api:put');
-const debugDelete = require('debug')('api:delete');
+
 
 const user = {
     "fisrtName": "fname",
@@ -50,29 +44,29 @@ const schema = new mongoose.Schema({
 const User = mongoose.model('User',schema);
 //methods to get data from database  
 async function getUsers(){
-    debugGet('Getting Data From Users...!!');
+    //debugGet('Getting Data From Users...!!');
     
     return user;
 }
 
 async function getUserByid(id){
-    debugGet('Getting user by id..!!');
+    //debugGet('Getting user by id..!!');
     
     return user;
 }
 
 async function saveUser(newuser){
-       debugPost('Saving data into database....!!!');
+      // debugPost('Saving data into database....!!!');
        
        return newuser; 
 }
 async function getUserByUserName(username){
-    debugGet('Getting user from database..!!');
+   // debugGet('Getting user from database..!!');
     
     return user;
 }
 async function deleteUser(id){
-    debugDelete('Deleting user from database..!!');   
+    //debugDelete('Deleting user from database..!!');   
    
     return user;
 }
