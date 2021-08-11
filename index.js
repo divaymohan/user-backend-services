@@ -38,7 +38,7 @@ app.use(logger);
 app.use(auth);
 
  //listen at port
-const port = 3000;
+const port = 3300;
 app.listen(port,()=>{
     console.log(`listening at port ${port}`);
 });
